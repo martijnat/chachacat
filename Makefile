@@ -1,6 +1,6 @@
 
 CC = gcc
-CFLAGS = -O3 -Wall -Wextra -pedantic -fanalyzer
+CFLAGS = -O3 -Wall -Wextra -pedantic -fanalyzer -static
 
 all: ccc-server ccc-client
 
