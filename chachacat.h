@@ -57,7 +57,6 @@ void poly1305_update(poly1305_ctx *ctx, const uint8_t *m, size_t bytes);
 void poly1305_final(poly1305_ctx *ctx, uint8_t mac[16]);
 
 // Utility
-void secure_erase(void *s, size_t len);
 void get_password(char *password, size_t max_len);
 void derive_key(const char *password, uint8_t key[KEY_SIZE]);
 void put_le64(uint8_t *buf, uint64_t val);

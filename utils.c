@@ -56,7 +56,7 @@ int run_sha256_tests(void) {
 int run_chacha20_poly1305_tests(void) {
     int err=0;
     // Test vectors from RFC 8439
-    // 2.8.2.  Example and Test Vector for AEAD_CHACHA20_POLY1305
+    // note that that we change the ADD to be empty.
     const uint8_t key[32] = {
         0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87,
         0x88, 0x89, 0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f,
@@ -104,7 +104,6 @@ int run_chacha20_poly1305_tests(void) {
         0x61, 0x16
     };
 
-    /* note that this differs from the official due to 0-length AAD*/
     const uint8_t expected_tag[16] = {
         0x54, 0x7D, 0x4D, 0x03, 0x65, 0xBA, 0x76, 0x00,
         0xC2, 0x5B, 0xC1, 0x03, 0x5D, 0xE8, 0x5F, 0x01

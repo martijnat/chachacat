@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
 
     while (received < file_size) {
         uint64_t to_read = (file_size - received > CHUNK_SIZE) ? CHUNK_SIZE : file_size - received;
-        uint64_t n = recv(client_fd, in_buf, to_read, MSG_WAITALL);
+        int n = recv(client_fd, in_buf, to_read, MSG_WAITALL);
         if (n <= 0) {
             perror("recv data");
             fclose(out);
@@ -104,7 +104,8 @@ int main(int argc, char *argv[]) {
         counter += (n + 63) / 64;  // Increment block counter
 
         // Write decrypted data
-        if (fwrite(out_buf, 1, n, out) != n) {
+        // safe to cast n, already checked earlier
+        if (fwrite(out_buf, 1, n, out) != (uint64_t) n) {
             perror("fwrite");
             fclose(out);
             close(client_fd);
