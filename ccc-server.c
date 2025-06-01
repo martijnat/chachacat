@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
     // Derive key
     uint8_t key[KEY_SIZE];
     derive_key(password, key);
-    secure_erase(password, sizeof(password));
+    explicit_bzero(password, sizeof(password));
 
     // Setup server socket
     int server_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
     chacha20_init(&chacha, key, nonce);
     poly1305_ctx poly;
     poly1305_init(&poly, key);
-    secure_erase(key, KEY_SIZE);
+    explicit_bzero(key, KEY_SIZE);
 
     // Receive and decrypt data
     uint8_t in_buf[CHUNK_SIZE], out_buf[CHUNK_SIZE];

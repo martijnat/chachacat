@@ -63,4 +63,7 @@ void derive_key(const char *password, uint8_t key[KEY_SIZE]);
 void put_le64(uint8_t *buf, uint64_t val);
 uint64_t get_le64(const uint8_t *buf);
 
+// Self Tests
+int run_sha256_tests(void);
+int run_chacha20_poly1305_tests(void);
 #endif

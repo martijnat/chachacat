@@ -7,6 +7,7 @@ static void chacha20_quarterround(uint32_t *a, uint32_t *b, uint32_t *c, uint32_
     *c += *d; *b = ROTL32(*b ^ *c, 7);
 }
 
+
 void chacha20_init(chacha20_ctx *ctx, const uint8_t key[32], const uint8_t nonce[12]) {
     ctx->state[0] = 0x61707865;
     ctx->state[1] = 0x3320646e;
@@ -20,9 +21,12 @@ void chacha20_init(chacha20_ctx *ctx, const uint8_t key[32], const uint8_t nonce
 }
 
 void chacha20_block(chacha20_ctx *ctx, uint32_t counter, uint8_t *out) {
+    uint32_t initial[16];
+    memcpy(initial, ctx->state, sizeof(initial));
+    initial[12] = counter;  // Set block counter
+
     uint32_t x[16];
-    memcpy(x, ctx->state, sizeof(x));
-    x[12] = counter;
+    memcpy(x, initial, sizeof(x));
 
     for (int i = 0; i < 10; i++) {
         chacha20_quarterround(&x[0], &x[4], &x[8],  &x[12]);
@@ -35,12 +39,14 @@ void chacha20_block(chacha20_ctx *ctx, uint32_t counter, uint8_t *out) {
         chacha20_quarterround(&x[3], &x[4], &x[9],  &x[14]);
     }
 
+    // Add original state (including counter) to the result
     for (int i = 0; i < 16; i++) {
-        uint32_t val = x[i] + ctx->state[i];
-        out[4*i]   = val;
-        out[4*i+1] = val >> 8;
-        out[4*i+2] = val >> 16;
-        out[4*i+3] = val >> 24;
+        x[i] += initial[i];
+        // Write as little-endian bytes
+        out[4*i]   = (uint8_t)(x[i]);
+        out[4*i+1] = (uint8_t)(x[i] >> 8);
+        out[4*i+2] = (uint8_t)(x[i] >> 16);
+        out[4*i+3] = (uint8_t)(x[i] >> 24);
     }
 }
 

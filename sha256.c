@@ -24,18 +24,30 @@ static void sha256_transform(SHA256_CTX *ctx, const uint8_t data[]) {
 
     for (i = 0, j = 0; i < 16; ++i, j += 4)
         m[i] = (data[j] << 24) | (data[j+1] << 16) | (data[j+2] << 8) | (data[j+3]);
-    for (; i < 64; ++i)
-        m[i] = ROTL32(m[i-2], 17) ^ ROTL32(m[i-2], 19) ^ (m[i-2] >> 10) +
-                m[i-7] + ROTL32(m[i-15], 7) ^ ROTL32(m[i-15], 18) ^ (m[i-15] >> 3);
+    for (; i < 64; ++i) {
+        uint32_t s0 = ROTL32(m[i-15], 25) ^ ROTL32(m[i-15], 14) ^ (m[i-15] >> 3);
+        uint32_t s1 = ROTL32(m[i-2], 15) ^ ROTL32(m[i-2], 13) ^ (m[i-2] >> 10);
+        m[i] = m[i-16] + s0 + m[i-7] + s1;
+    }
 
     a = ctx->state[0]; b = ctx->state[1]; c = ctx->state[2]; d = ctx->state[3];
     e = ctx->state[4]; f = ctx->state[5]; g = ctx->state[6]; h = ctx->state[7];
 
     for (i = 0; i < 64; ++i) {
-        t1 = h + (ROTL32(e, 6) ^ ROTL32(e, 11) ^ ROTL32(e, 25)) + ((e & f) ^ (~e & g)) + k[i] + m[i];
-        t2 = (ROTL32(a, 2) ^ ROTL32(a, 13) ^ ROTL32(a, 22)) + ((a & b) ^ (a & c) ^ (b & c));
-        h = g; g = f; f = e; e = d + t1;
-        d = c; c = b; b = a; a = t1 + t2;
+        uint32_t ch = (e & f) ^ (~e & g);
+        uint32_t maj = (a & b) ^ (a & c) ^ (b & c);
+        uint32_t sigma0 = ROTL32(a, 30) ^ ROTL32(a, 19) ^ ROTL32(a, 10);
+        uint32_t sigma1 = ROTL32(e, 26) ^ ROTL32(e, 21) ^ ROTL32(e, 7);
+        t1 = h + sigma1 + ch + k[i] + m[i];
+        t2 = sigma0 + maj;
+        h = g;
+        g = f;
+        f = e;
+        e = d + t1;
+        d = c;
+        c = b;
+        b = a;
+        a = t1 + t2;
     }
 
     ctx->state[0] += a; ctx->state[1] += b; ctx->state[2] += c; ctx->state[3] += d;

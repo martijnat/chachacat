@@ -1,3 +1,4 @@
+
 CC = gcc
 CFLAGS = -O3 -Wall -Wextra -pedantic
 
@@ -9,13 +10,17 @@ ccc-server: ccc-server.o utils.o sha256.o chacha20.o poly1305.o
 ccc-client: ccc-client.o utils.o sha256.o chacha20.o poly1305.o
 	$(CC) $(CFLAGS) -o $@ $^
 
+ccc-cryptotest: ccc-cryptotest.o utils.o sha256.o chacha20.o poly1305.o
+	$(CC) $(CFLAGS) -o $@ $^
+
 %.o: %.c chachacat.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-	rm -f ccc-server ccc-client *.o
+	rm -f ccc-server ccc-client ccc-cryptotest *.o
 
-selftest: ccc-server ccc-client
+test: ccc-server ccc-client ccc-cryptotest
+	./ccc-cryptotest
 	head -c 1K /dev/urandom > random_input.txt
 	echo -n "password" | ./ccc-server random_output.txt &
 	echo -n "password" | ./ccc-client 127.0.0.1 random_input.txt
